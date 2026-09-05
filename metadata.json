@@ -1,0 +1,6 @@
+{
+  "name": "Cash Track",
+  "description": "Professional shared cash management app with real-time cloud synchronization between Mujahid and Boss.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
