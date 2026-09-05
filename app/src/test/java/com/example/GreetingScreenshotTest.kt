@@ -31,6 +31,10 @@ class GreetingScreenshotTest {
       }
     }
 
-    composeTestRule.onRoot().captureRoboImage(filePath = "src/test/screenshots/greeting.png")
+    composeTestRule.waitForIdle()
+    val file = java.io.File("app/src/test/screenshots/greeting.png").let {
+      if (it.parentFile?.exists() == true) it else java.io.File("src/test/screenshots/greeting.png")
+    }
+    composeTestRule.onRoot().captureRoboImage(filePath = file.path)
   }
 }
