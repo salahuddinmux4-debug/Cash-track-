@@ -65,6 +65,7 @@ android {
           showStandardStreams = true
           exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
         }
+        it.classpath += files(layout.buildDirectory.dir("intermediates/built_in_kotlinc/debug/compileDebugKotlin/classes"))
       }
     }
   }

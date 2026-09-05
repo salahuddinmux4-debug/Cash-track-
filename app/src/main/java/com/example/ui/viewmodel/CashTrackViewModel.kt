@@ -29,9 +29,15 @@ data class CashSummary(
 
 class CashTrackViewModel(
     application: Application,
-    val authManager: AuthManager = AuthManager(application),
-    val repository: CashTrackRepository = CashTrackRepository(application)
+    val authManager: AuthManager,
+    val repository: CashTrackRepository
 ) : AndroidViewModel(application) {
+
+    constructor(application: Application) : this(
+        application = application,
+        authManager = AuthManager(application),
+        repository = CashTrackRepository(application)
+    )
 
     val currentUser: StateFlow<UserRole?> = authManager.currentUser
     val transactions: StateFlow<List<Transaction>> = repository.transactions
