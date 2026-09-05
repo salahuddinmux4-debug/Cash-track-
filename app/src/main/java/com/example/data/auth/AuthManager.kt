@@ -7,22 +7,24 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class AuthManager(context: Context) {
+class AuthManager(
+    context: Context? = null,
+    private val prefs: SharedPreferences? = context?.getSharedPreferences("cash_track_auth", Context.MODE_PRIVATE)
+) {
 
-    private val prefs: SharedPreferences =
-        context.getSharedPreferences("cash_track_auth", Context.MODE_PRIVATE)
+    private val inMemoryStore = mutableMapOf<String, String>()
 
     private val _currentUser = MutableStateFlow<UserRole?>(loadCurrentUser())
     val currentUser: StateFlow<UserRole?> = _currentUser.asStateFlow()
 
     private fun loadCurrentUser(): UserRole? {
-        val savedId = prefs.getString(KEY_CURRENT_USER_ID, null) ?: return null
+        val savedId = prefs?.getString(KEY_CURRENT_USER_ID, null) ?: inMemoryStore[KEY_CURRENT_USER_ID] ?: return null
         return UserRole.entries.firstOrNull { it.id == savedId }
     }
 
     fun getPinForUser(role: UserRole): String {
         val defaultPin = if (role == UserRole.MAIN) DEFAULT_PIN_MAIN else DEFAULT_PIN_BOSS
-        return prefs.getString(KEY_PIN_PREFIX + role.id, defaultPin) ?: defaultPin
+        return prefs?.getString(KEY_PIN_PREFIX + role.id, defaultPin) ?: inMemoryStore[KEY_PIN_PREFIX + role.id] ?: defaultPin
     }
 
     fun verifyPin(role: UserRole, enteredPin: String): Boolean {
@@ -32,7 +34,8 @@ class AuthManager(context: Context) {
 
     fun login(role: UserRole, pin: String): Boolean {
         if (verifyPin(role, pin)) {
-            prefs.edit().putString(KEY_CURRENT_USER_ID, role.id).apply()
+            prefs?.edit()?.putString(KEY_CURRENT_USER_ID, role.id)?.apply()
+            inMemoryStore[KEY_CURRENT_USER_ID] = role.id
             _currentUser.value = role
             return true
         }
@@ -40,14 +43,16 @@ class AuthManager(context: Context) {
     }
 
     fun logout() {
-        prefs.edit().remove(KEY_CURRENT_USER_ID).apply()
+        prefs?.edit()?.remove(KEY_CURRENT_USER_ID)?.apply()
+        inMemoryStore.remove(KEY_CURRENT_USER_ID)
         _currentUser.value = null
     }
 
     fun changePin(role: UserRole, oldPin: String, newPin: String): Boolean {
         if (!verifyPin(role, oldPin)) return false
         if (newPin.length < 4) return false
-        prefs.edit().putString(KEY_PIN_PREFIX + role.id, newPin.trim()).apply()
+        prefs?.edit()?.putString(KEY_PIN_PREFIX + role.id, newPin.trim())?.apply()
+        inMemoryStore[KEY_PIN_PREFIX + role.id] = newPin.trim()
         return true
     }
 

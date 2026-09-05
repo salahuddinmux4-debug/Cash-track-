@@ -1,7 +1,5 @@
 package com.example
 
-import android.content.Context
-import androidx.test.core.app.ApplicationProvider
 import com.example.data.auth.AuthManager
 import com.example.data.model.Transaction
 import com.example.data.model.UserRole
@@ -10,23 +8,13 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
+import org.junit.runners.JUnit4
 import java.util.UUID
 
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34])
+@RunWith(JUnit4::class)
 class CashTrackSharedScenarioTest {
-
-    private lateinit var context: Context
-
-    @Before
-    fun setUp() {
-        context = ApplicationProvider.getApplicationContext()
-    }
 
     /**
      * Shared in-memory cloud database simulation connecting two client devices
@@ -124,13 +112,13 @@ class CashTrackSharedScenarioTest {
         val sharedCloud = MockSharedCloudDatabase()
 
         // 1. Mobile 1: Login as Main (Mujahid)
-        val authMobile1 = AuthManager(context)
+        val authMobile1 = AuthManager()
         val mobile1 = SimulatedMobileDevice(UserRole.MAIN, authMobile1, sharedCloud)
         assertTrue("Main should log in with default PIN", mobile1.login("1234"))
         assertFalse("Main should fail with wrong PIN", authMobile1.verifyPin(UserRole.MAIN, "0000"))
 
         // 2. Mobile 2: Login as Boss
-        val authMobile2 = AuthManager(context)
+        val authMobile2 = AuthManager()
         val mobile2 = SimulatedMobileDevice(UserRole.BOSS, authMobile2, sharedCloud)
         assertTrue("Boss should log in with default PIN", mobile2.login("5678"))
         assertFalse("Boss should fail with wrong PIN", authMobile2.verifyPin(UserRole.BOSS, "0000"))
